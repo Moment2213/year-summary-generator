@@ -4,7 +4,8 @@
 
 ## 在线使用
 
-**https://moment2213.github.io/year-summary-generator/**
+- 国内镜像（Gitee Pages）：https://bombing-the-mountain-goats.gitee.io/year-summary-generator/
+- 主站（GitHub Pages）：https://moment2213.github.io/year-summary-generator/
 
 单文件网页：双击 `index.html` 也能离线使用。所有内容仅在浏览器本地处理，不上传任何数据。
 
