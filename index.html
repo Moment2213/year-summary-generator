@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>年终总结生成器 · 2026</title>
+<style>
+  :root{
+    --accent:#4f6ef7; --accent2:#8b5cf6;
+    --ink:#1f2430; --sub:#6b7280; --line:#e8eaf2; --bg:#f4f6fb;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system,"Segoe UI",sans-serif;
+    background:var(--bg); color:var(--ink); min-height:100vh; padding:18px;
+  }
+  .wrap{max-width:1060px;margin:0 auto}
+  .hero{
+    background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);
+    border-radius:20px; padding:30px 30px 26px; color:#fff; position:relative; overflow:hidden;
+  }
+  .hero::after{
+    content:""; position:absolute; right:-40px; top:-40px; width:190px; height:190px;
+    background:rgba(255,255,255,.14); border-radius:50%;
+  }
+  .hero::before{
+    content:""; position:absolute; right:70px; bottom:-70px; width:150px; height:150px;
+    background:rgba(255,255,255,.10); border-radius:50%;
+  }
+  .badge{
+    display:inline-block; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35);
+    padding:4px 12px; border-radius:999px; font-size:12.5px; margin-bottom:12px; letter-spacing:.5px;
+  }
+  .hero h1{font-size:30px; letter-spacing:1px}
+  .hero h1 .y{
+    display:inline-block; background:#ffd84d; color:#4a3b00; font-size:16px; font-weight:700;
+    padding:2px 10px; border-radius:8px; vertical-align:6px; margin-left:8px; transform:rotate(3deg);
+  }
+  .hero p{margin-top:8px; opacity:.92; font-size:14.5px}
+  main{display:grid; grid-template-columns:1fr 1.18fr; gap:18px; margin-top:18px}
+  @media (max-width:880px){ main{grid-template-columns:1fr} }
+  .card{
+    background:#fff; border:1px solid var(--line); border-radius:18px; padding:20px;
+    box-shadow:0 6px 24px rgba(31,42,80,.06);
+  }
+  h2{font-size:16px; margin-bottom:14px}
+  h2 small{color:var(--sub); font-weight:400; font-size:12.5px; margin-left:8px}
+  .f{margin-bottom:13px}
+  .f label{display:block; font-size:13px; color:#3a4152; margin-bottom:5px; font-weight:600}
+  .f label .opt{color:#9aa1b1; font-weight:400}
+  .f input,.f textarea,.f select{
+    width:100%; border:1.5px solid var(--line); border-radius:11px; padding:9px 12px;
+    font-size:14px; font-family:inherit; color:var(--ink); background:#fbfcff; outline:none;
+    transition:border .15s;
+  }
+  .f textarea{resize:vertical; min-height:96px; line-height:1.65}
+  .f input:focus,.f textarea:focus,.f select:focus{border-color:var(--accent); background:#fff}
+  .hint{font-size:12px; color:#9aa1b1; margin-top:4px}
+  .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:4px}
+  button{cursor:pointer; border:none; font-family:inherit; border-radius:11px; font-size:14px}
+  .btn-main{
+    flex:1; min-width:150px; background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff; font-weight:700; padding:11px 0; letter-spacing:1px;
+    box-shadow:0 6px 16px rgba(79,110,247,.35); transition:transform .1s;
+  }
+  .btn-main:active{transform:scale(.97)}
+  .btn-ghost{background:#f1f3fa; color:#3a4152; padding:11px 16px; font-weight:600}
+  .out-bar{
+    display:flex; align-items:center; gap:8px; padding-bottom:12px; margin-bottom:12px;
+    border-bottom:1px dashed var(--line); flex-wrap:wrap;
+  }
+  .out-bar .wc{font-size:12.5px; color:var(--sub); margin-right:auto}
+  .out-bar button{background:#f1f3fa; color:#3a4152; padding:7px 13px; font-size:13px; font-weight:600}
+  .out-bar button:hover{background:#e7eaf6}
+  #output{font-size:14.5px; line-height:1.95; color:#2a3040; white-space:normal; min-height:300px}
+  #output p{margin-bottom:12px; text-align:justify}
+  #output .empty{color:#9aa1b1; text-align:center; padding:110px 10px; font-size:14px; line-height:2}
+  .tips{margin-top:18px}
+  .tips ul{list-style:none}
+  .tips li{
+    font-size:13.5px; color:#3a4152; padding:9px 0 9px 34px; position:relative; line-height:1.7;
+  }
+  .tips li b{color:var(--accent)}
+  .tips li::before{
+    content:"💡"; position:absolute; left:4px; top:8px; font-size:15px;
+  }
+  .privacy{
+    margin-top:10px; font-size:12px; color:#9aa1b1; text-align:center; line-height:1.8;
+  }
+  footer{
+    text-align:center; margin:22px 0 8px; font-size:12.5px; color:#a3a9b8; letter-spacing:.5px;
+  }
+  #toast{
+    position:fixed; left:50%; bottom:36px; transform:translateX(-50%) translateY(20px);
+    background:#1f2430; color:#fff; padding:9px 20px; border-radius:999px; font-size:13.5px;
+    opacity:0; pointer-events:none; transition:all .25s; z-index:9;
+  }
+  #toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="badge">🔒 纯本地运行 · 内容不会上传</div>
+    <h1>年终总结生成器<span class="y">2026</span></h1>
+    <p>填 5 个空，10 秒生成一版能交差的年终总结 · 四种风格随意切换</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>① 填写你的这一年 <small>带 <span class="opt">（可选）</span> 的可以空着</small></h2>
+
+      <div class="f">
+        <label>岗位 / 角色 <span class="opt">（可选）</span></label>
+        <input id="role" placeholder="例：产品经理 / 初中班主任 / 运营">
+      </div>
+
+      <div class="f">
+        <label>今年做成的 3~6 件事 <span style="color:#e0564f">*</span></label>
+        <textarea id="wins" placeholder="每行一条，用「动作 + 结果」的写法，例：&#10;主导会员体系 2.0 改版上线，次月续费率提升 18%&#10;搭建需求评审模板，需求返工率从 35% 降到 12%"></textarea>
+        <div class="hint">写事，不写态度；有数字尽量放数字</div>
+      </div>
+
+      <div class="f">
+        <label>常用方法 / 工具 <span class="opt">（可选）</span></label>
+        <input id="tools" placeholder="例：数据分析、跨部门协作、AI 工具提效">
+      </div>
+
+      <div class="f">
+        <label>想突出的数字成果 <span class="opt">（可选）</span></label>
+        <input id="nums" placeholder="例：营收 +120 万，人效提升 40%">
+      </div>
+
+      <div class="f">
+        <label>明年最想做成的一件事 <span class="opt">（可选）</span></label>
+        <input id="plan" placeholder="例：把新会员体系推广到海外版">
+      </div>
+
+      <div class="f">
+        <label>总结风格</label>
+        <select id="style">
+          <option value="formal">端正汇报体 · 交正式年终总结</option>
+          <option value="defense">述职答辩体 · 述职 / 晋升答辩</option>
+          <option value="mail">简洁邮件体 · 发给老板的邮件</option>
+          <option value="fun">轻松朋友圈体 · 社交平台打卡</option>
+        </select>
+      </div>
+
+      <div class="btns">
+        <button class="btn-main" id="go">✨ 生成我的年终总结</button>
+        <button class="btn-ghost" id="again">🎲 换一版</button>
+        <button class="btn-ghost" id="clear">清空</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>② 检查、微调后直接用 <small>可复制 / 可下载</small></h2>
+      <div class="out-bar">
+        <span class="wc" id="wc"></span>
+        <button id="copy">📋 复制全文</button>
+        <button id="dl">⬇️ 下载 .md</button>
+      </div>
+      <div id="output"><div class="empty">👆 在左边填上今年做成的几件事<br>点「生成」，10 秒后这里就是一版能交差的总结</div></div>
+    </section>
+  </main>
+
+  <aside class="card tips">
+    <h2>写年终总结的 3 个小技巧</h2>
+    <ul>
+      <li><b>写「动作 + 结果」，少写态度。</b>「加班加点、任劳任怨」不如「把周报流程从 2 小时压到 20 分钟」。</li>
+      <li><b>数字最有说服力。</b>没有大数字就写对比：从 0 到 1、返工率下降、响应时长缩短。</li>
+      <li><b>500~800 字最合适。</b>领导真正的阅读时间不超过 1 分钟，重点要让他第一眼看到。</li>
+    </ul>
+    <div class="privacy">🔒 所有内容仅在你的浏览器本地处理，关闭页面即消失，不会上传任何服务器。</div>
+  </aside>
+
+  <footer>用 AutoClaw 10 分钟做的参赛小工具 · AutoClaw 创造力挑战第六期</footer>
+</div>
+<div id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const LEADS = ['一是','二是','三是','四是','五是','六是'];
+const FUN_EMOJI = ['🌟','🚀','💪','🎯','✨','🧩'];
+
+function readInput(){
+  const wins = $('#wins').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,6);
+  return {
+    role : $('#role').value.trim(),
+    wins,
+    tools: $('#tools').value.trim(),
+    nums : $('#nums').value.trim(),
+    plan : $('#plan').value.trim(),
+    style: $('#style').value
+  };
+}
+
+function roleOf(d, fallback){
+  return d.role ? `「${d.role}」` : fallback;
+}
+
+const TPL = {
+  formal: d => {
+    const r = roleOf(d,'本职工作');
+    const paras = [];
+    paras.push([pick([
+      `2026 年，本人立足${r}，围绕团队目标扎实推进各项工作，现将全年情况汇报如下。`,
+      `2026 即将收尾。回顾这一年，本人聚焦核心目标、稳步推进，主要工作总结如下。`,
+      `本年度，本人以结果为导向推动各项工作落地，全年情况总结如下。`
+    ])]);
+    const tails = [
+      `该项工作已按期落地并稳定运行。`,
+      `相关流程已沉淀为可复用的模板。`,
+      `获得协作方与上级的正面反馈。`,
+      `为后续同类工作提供了可参照的路径。`
+    ];
+    d.wins.forEach((a,i)=>{
+      const line = `${LEADS[i]}${a}。` + (Math.random()<0.45 ? pick(tails) : '');
+      paras.push([line]);
+    });
+    if(d.nums) paras.push([`全年关键数据：${d.nums}。`]);
+    paras.push([pick([
+      `同时，这一年${d.tools?`在${d.tools}方面得到了进一步锻炼`:'业务能力得到了进一步锻炼'}，工作中更加注重以数据和结果说话；不足在于部分项目的推进节奏仍有优化空间，明年将重点改进。`,
+      `收获方面，${d.tools?`${d.tools}的能力得到了系统沉淀`:'解决复杂问题的能力得到了系统沉淀'}；也要正视不足：个别项目前紧后松，计划性有待加强。`
+    ])]);
+    if(d.plan) paras.push([`2027 年，计划集中力量推进「${d.plan}」，力争形成可量化的业务结果。`]);
+    paras.push([`以上，感谢团队与领导一年来的支持与信任。`]);
+    return paras;
+  },
+
+  defense: d => {
+    const paras = [];
+    paras.push([pick([
+      `如果用一句话概括我的 2026：把该做的事做成了，把难做的事理顺了。`,
+      `我的 2026，可以浓缩成一句话：目标基本清零，方法全部沉淀。`
+    ])]);
+    d.wins.forEach(a=>paras.push([`✅ ${a}`]));
+    if(d.nums) paras.push([`几个关键数字：${d.nums}。`]);
+    paras.push([`做法上，主要靠${d.tools?d.tools:'拆解目标和定期复盘'}：把大目标拆成周级别的小任务，逐项闭环，避免年底一次性补账。`]);
+    paras.push([`教训也有一条：有些事启动偏晚、验证偏慢，明年要更早拿出数据来验证方向。`]);
+    if(d.plan) paras.push([`2027 我会把主要精力押在「${d.plan}」上，目标是一个季度内跑出第一版结果。`]);
+    paras.push([`以上是我的述职，欢迎各位拍砖。`]);
+    return paras;
+  },
+
+  mail: d => {
+    const paras = [];
+    paras.push([pick([
+      `Hi~ 简单同步一下我 2026 年的工作情况，细节随时当面聊。`,
+      `领导好，把我今年的工作简单汇总如下，具体细节我们约时间细聊。`
+    ])]);
+    d.wins.forEach(a=>paras.push([`· ${a}`]));
+    if(d.nums) paras.push([`关键数据：${d.nums}。`]);
+    paras.push([d.tools
+      ? `今年在${d.tools}上进步比较大；不足是时间预估偏乐观，个别项目比计划晚了，明年会留好缓冲。`
+      : `不足是时间预估偏乐观，个别项目比计划晚了，明年会留好缓冲。`]);
+    if(d.plan) paras.push([`明年的重点想放在「${d.plan}」上，想先跟你对一下方向。`]);
+    paras.push([`祝好！`]);
+    return paras;
+  },
+
+  fun: d => {
+    const paras = [];
+    paras.push([pick([
+      `2026 年终盘点来啦🎉 主打一个说到做到～`,
+      `叮！2026 进度条 99%，盘点一下这一年👇`
+    ])]);
+    const lines = [];
+    const em = [...FUN_EMOJI].sort(()=>Math.random()-0.5);
+    d.wins.forEach((a,i)=>lines.push(`${em[i%em.length]} ${a}`));
+    if(d.nums) lines.push(`📊 数字打卡：${d.nums}`);
+    paras.push(lines);
+    paras.push([d.tools
+      ? `今年技能树点亮：${d.tools}。也有翻车瞬间，好在都爬起来了😂`
+      : `今年也有翻车瞬间，好在都爬起来了😂`]);
+    if(d.plan) paras.push([`2027 第一个 flag：「${d.plan}」。先立在这儿，明年来自证。`]);
+    paras.push([`感谢一路组队的朋友们，明年继续！🍻`]);
+    return paras;
+  }
+};
+
+let lastPlain = '';
+
+function run(){
+  const d = readInput();
+  if(!d.wins.length){
+    $('#output').innerHTML = `<div class="empty">⚠️ 先在左边写 1~6 条「今年做成的事」<br>每行一条，例如：主导××项目上线，效率提升 30%</div>`;
+    $('#wc').textContent = '';
+    lastPlain = '';
+    return;
+  }
+  const paras = TPL[d.style](d);
+  lastPlain = paras.map(lines=>lines.join('\n')).join('\n\n');
+  $('#output').innerHTML = paras.map(lines=>`<p>${lines.map(esc).join('<br>')}</p>`).join('');
+  const n = lastPlain.replace(/\s/g,'').length;
+  $('#wc').textContent = `约 ${n} 字 · 生成时间 0.1 秒，人工核对请交给你自己 😉`;
+}
+
+function resetOut(){
+  $('#output').innerHTML = `<div class="empty">👆 在左边填上今年做成的几件事<br>点「生成」，10 秒后这里就是一版能交差的总结</div>`;
+  $('#wc').textContent = '';
+  lastPlain = '';
+}
+
+function toast(msg){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1600);
+}
+
+$('#go').addEventListener('click', run);
+$('#again').addEventListener('click', ()=>{ if(lastPlain) run(); else run(); });
+$('#clear').addEventListener('click', ()=>{
+  ['role','wins','tools','nums','plan'].forEach(id=>$('#'+id).value='');
+  $('#style').value = 'formal';
+  resetOut();
+});
+
+$('#copy').addEventListener('click', async ()=>{
+  if(!lastPlain){ toast('先生成一份再复制～'); return; }
+  try{
+    await navigator.clipboard.writeText(lastPlain);
+    toast('已复制全文 ✓');
+  }catch(e){
+    const ta = document.createElement('textarea');
+    ta.value = lastPlain; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); ta.remove();
+    toast('已复制全文 ✓');
+  }
+});
+
+$('#dl').addEventListener('click', ()=>{
+  if(!lastPlain){ toast('先生成一份再下载～'); return; }
+  const blob = new Blob(['# 2026 年终总结\n\n' + lastPlain + '\n'], {type:'text/markdown;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '2026年终总结.md';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('已下载 .md 文件 ✓');
+});
+
+// 演示模式：?demo=1 自动填充示例并生成
+const q = new URLSearchParams(location.search);
+if(q.has('demo')){
+  $('#role').value = '产品经理';
+  $('#wins').value = '主导会员体系 2.0 改版上线，次月续费率提升 18%\n搭建需求评审模板，需求返工率从 35% 降到 12%\n推动客服工单系统与 CRM 打通，平均响应时长缩短一半';
+  $('#tools').value = '数据分析、跨部门协作、原型设计';
+  $('#nums').value = '续费率 +18%，需求返工率 -23pct，工单响应时长 -50%';
+  $('#plan').value = '把新会员体系推广到海外版';
+  $('#style').value = 'formal';
+  run();
+}
+</script>
+</body>
+</html>
